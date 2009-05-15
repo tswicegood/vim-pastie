@@ -62,6 +62,11 @@
 "   "Pastie_ruby_exec"
 "       Setting this allows you to specify the ruby executable that you
 "       use.  Useful for non-standard installations.
+"   "Pastie_auto_open"
+"       Setting this to 1 causes "open <pastie URL>" to be executed at
+"       the command line.  See also, "Pastie_auto_open_exec"
+"   "Pastie_auto_open_exec"
+"       The executable to run when automatically opening a pastie
 "
 " Known Issues:
 " URL sometimes disappears with the bang (:Pastie!) variant.  You can still
@@ -96,6 +101,8 @@ augroup END
 let s:domain = "pastie.org"
 
 let s:Pastie_ruby_exec = "ruby"
+let s:Pastie_auto_open = 0
+let s:Pastie_auto_open_exec = "open"
 function! s:get_value(name)
     let scope = 'bgs'
     let name = a:name
@@ -400,6 +407,9 @@ function! s:PastieWrite(file)
         silent exe "file ".redirect.s:dl_suffix
         " TODO: make a proper status message
         echo '"'.redirect.'" written'
+        if s:get_value("Pastie_auto_open") == 1
+           execute "!" . s:get_value("Pastie_auto_open_exec")." ".redirect
+        endif
         silent exe "doautocmd BufWritePost ".redirect.s:dl_suffix
     else
         if redirect == ''
