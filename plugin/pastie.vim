@@ -57,6 +57,11 @@
 " execution.  In Vim 7 highlighting is done with :2match (use ":2match none"
 " to disable it) and in previous versions, :match (use ":match none" to
 " disable).
+" 
+" Configuration values:
+"   "Pastie_ruby_exec"
+"       Setting this allows you to specify the ruby executable that you
+"       use.  Useful for non-standard installations.
 "
 " Known Issues:
 " URL sometimes disappears with the bang (:Pastie!) variant.  You can still
@@ -89,6 +94,19 @@ augroup pastie
 augroup END
 
 let s:domain = "pastie.org"
+
+let s:Pastie_ruby_exec = "ruby"
+function! s:get_value(name)
+    let scope = 'bgs'
+    let name = a:name
+    let i = 0
+    while i != strlen(scope)
+        if exists(scope[i].':'.name) && (0 != strlen({scope[i]}:{name}))
+            return {scope[i]}:{name}
+        endif
+        let i += 1
+    endwhile
+endfunction
 
 let s:dl_suffix = ".txt" " Used only for :file
 
@@ -368,7 +386,8 @@ function! s:PastieWrite(file)
     silent exe "write ".tmp
     let result = ""
     let rubycmd = 'obj = Net::HTTP.start(%{'.s:domain.'}){|h|h.post(%{'.url.'}, %q{'.method.'paste[parser]='.parser.pdn.'&paste[authorization]=burger&paste[key]=&paste[body]=} + File.read(%q{'.tmp.'}))}; print obj[%{Location}].to_s+%{ }+obj[%{Set-Cookie}].to_s'
-    let result = system('ruby -rnet/http -e "'.rubycmd.'"')
+    let ruby = s:get_value("Pastie_ruby_exec")
+    let result = system(ruby.' -rnet/http -e "'.rubycmd.'"')
     let redirect = matchstr(result,'^[^ ]*')
     let cookies  = matchstr(result,'^[^ ]* \zs.*')
     call s:extractcookiesfromheader(cookies)
