@@ -103,6 +103,9 @@ let s:domain = "pastie.org"
 let s:Pastie_ruby_exec = "ruby"
 let s:Pastie_auto_open = 0
 let s:Pastie_auto_open_exec = "open"
+
+" Inspired by information found at:
+"   http://vim.wikia.com/wiki/Letting_variable_values_be_overwritten_in_a_script
 function! s:get_value(name)
     let scope = 'bgs'
     let name = a:name
